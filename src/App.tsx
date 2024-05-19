@@ -1,17 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
+
 import {
   IonApp,
+  IonIcon,
+  IonLabel,
   IonRouterOutlet,
+  IonTabBar,
+  IonTabButton,
+  IonTabs,
   setupIonicReact
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import Tab1 from './pages/Tab1';
-import Tab2 from './pages/Tab2';
-import Tab3 from './pages/Tab3';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import NotFound from './pages/NotFound';
+import { home, list, construct, addCircle } from 'ionicons/icons';
 
 import '@ionic/react/css/core.css';
 import '@ionic/react/css/normalize.css';
@@ -25,41 +29,75 @@ import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 import '@ionic/react/css/palettes/dark.system.css';
 import './theme/variables.css';
+import Inicio from './pages/sistema/Inicio';
+import Inventario from './pages/sistema/Inventario';
+import Servicios from './pages/sistema/Servicios';
+import Mas from './pages/sistema/Mas';
 
 setupIonicReact();
 
 const App: React.FC = () => {
   const [loggedIn, setLoggedIn] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem('loggedIn');
-    setLoggedIn(isLoggedIn === 'true');
+    const isLoggedIn = localStorage.getItem('loggedIn') === 'true';
+    setLoggedIn(isLoggedIn);
+    setLoading(false);
   }, []);
+
+
+  if (loading) {
+    return <IonApp>Loading...</IonApp>;
+  }
 
   return (
     <IonApp>
       <IonReactRouter>
-        <IonRouterOutlet>
-          <Switch>
-            <Route exact path="/login" component={Login} />
-            <Route exact path="/register" component={Register} />
-            {loggedIn ? (
-              <>
-                <Route exact path="/tab1" component={Tab1} />
-                <Route exact path="/tab2" component={Tab2} />
-                <Route path="/tab3" component={Tab3} />
+        <Switch>
+          <Route exact path="/login">
+            {loggedIn ? <Redirect to="/" /> : <Login onLogin={() => setLoggedIn(true)} />}
+          </Route>
+          <Route exact path="/register" component={Register} />
+          {loggedIn ? (
+            <IonTabs>
+              <IonRouterOutlet>
+                <Route exact path="/inicio" component={Inicio} />
+                <Route exact path="/inventario" component={Inventario} />
+                <Route exact path="/servicios" component={Servicios} />
+                <Route exact path="/mas" component={Mas} />
                 <Route exact path="/">
-                  <Redirect to="/tab1" />
+                  <Redirect to="/inicio" />
                 </Route>
-                <Route path="*" component={NotFound} />
-              </>
-            ) : (
-              <Redirect to="/login" />
-            )}
-          </Switch>
-        </IonRouterOutlet>
+
+              </IonRouterOutlet>
+              <IonTabBar slot="bottom">
+                <IonTabButton tab="inicio" href="/inicio">
+                  <IonIcon icon={home} />
+                  <IonLabel>Inicio</IonLabel>
+                </IonTabButton>
+                <IonTabButton tab="inventario" href="/inventario">
+                  <IonIcon icon={list} />
+                  <IonLabel>Inventario</IonLabel>
+                </IonTabButton>
+                <IonTabButton tab="servicios" href="/servicios">
+                  <IonIcon icon={construct} />
+                  <IonLabel>Servicios</IonLabel>
+                </IonTabButton>
+                <IonTabButton tab="mas" href="/mas">
+                  <IonIcon icon={addCircle} />
+                  <IonLabel>Mas</IonLabel>
+                </IonTabButton>
+              </IonTabBar>
+            </IonTabs>
+          ) : (
+            <Redirect to="/login" />
+          )}
+          <Route component={NotFound} />
+        </Switch>
       </IonReactRouter>
     </IonApp>
+
   );
 };
 
