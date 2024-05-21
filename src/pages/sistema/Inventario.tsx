@@ -1,8 +1,12 @@
 import React from 'react'
+import Camera from '../../components/Scanner'
 
 function Inventario() {
   return (
-    <div>Inventario</div>
+    <>
+      <div>Inventario</div>
+      <Camera />
+    </>
   )
 }
 
