@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Redirect, Route, Switch } from 'react-router-dom';
+import { Redirect, Route, Switch, useHistory } from 'react-router-dom';
 
 import {
   IonApp,
+  IonButton,
   IonIcon,
   IonLabel,
   IonRouterOutlet,
   IonTabBar,
   IonTabButton,
   IonTabs,
+  IonToolbar,
   setupIonicReact
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
@@ -33,6 +35,8 @@ import Inicio from './pages/sistema/Inicio';
 import Inventario from './pages/sistema/Inventario';
 import Servicios from './pages/sistema/Servicios';
 import Mas from './pages/sistema/Mas';
+import Agregar from './pages/sistema/Agregar';
+import Atras from './components/Atras';
 
 setupIonicReact();
 
@@ -50,9 +54,13 @@ const App: React.FC = () => {
   if (loading) {
     return <IonApp>Loading...</IonApp>;
   }
+  const history = useHistory();
 
-  return (
+  return (<>
+      
     <IonApp>
+      <Atras/>
+
       <IonReactRouter>
         <Switch>
           <Route exact path="/login">
@@ -66,6 +74,7 @@ const App: React.FC = () => {
                 <Route exact path="/inventario" component={Inventario} />
                 <Route exact path="/servicios" component={Servicios} />
                 <Route exact path="/mas" component={Mas} />
+                <Route exact path="/agregar" component={Agregar} />
                 <Route exact path="/">
                   <Redirect to="/inicio" />
                 </Route>
@@ -97,6 +106,7 @@ const App: React.FC = () => {
         </Switch>
       </IonReactRouter>
     </IonApp>
+    </>
 
   );
 };
