@@ -1,5 +1,12 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import swal from 'sweetalert';
+
+interface FormFieldProps {
+  label: string;
+  id: string;
+  type: string;
+  required?: boolean;
+}
 
 const mostrarAlerta = () => {
   swal({
@@ -8,7 +15,8 @@ const mostrarAlerta = () => {
     icon: "success"
   })
 }
-const FormField = ({ label, id, type, required = false }) => {
+
+const FormField: React.FC<FormFieldProps> = ({ label, id, type, required = false }) => {
   return (
     <div className="mb-4">
       <label htmlFor={id} className="block text-sm font-medium ">
@@ -19,14 +27,20 @@ const FormField = ({ label, id, type, required = false }) => {
   );
 };
 
-const CreateUserForm = ({ children, open, close }) => {
+interface CreateUserFormProps {
+  open: boolean;
+  close: (value: boolean) => void;
+  children?: ReactNode;
+}
+
+const CreateUserForm: React.FC<CreateUserFormProps> = ({ children, open, close }) => {
   return (
     <>
       {open &&
         <div className="relative ml-[5px] mt-[-190px]">
           <div className="fixed inset-0 bg-black opacity-50 z-10"></div>
           <div className="bg-zinc-800 text-white p-6 max-w-sm mx-auto rounded-lg mt-[-60px] relative z-20">
-            <h2 className="text-lg font-semibold mb-4">Create Upate Product</h2>
+            <h2 className="text-lg font-semibold mb-4">Create Update Product</h2>
             <form>
               <FormField label="Id" id="id" type="text" />
               <FormField label="Nombre del Producto" id="product-name" type="text" required />
@@ -53,8 +67,6 @@ const CreateUserForm = ({ children, open, close }) => {
             {children}
           </div>
         </div>
-
-
       }
     </>
   );

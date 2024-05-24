@@ -6,14 +6,34 @@ import DeleteIcon from './Botones/DeleteIcon';
 import UpdateUser from '../components/NewProduct/UpdateUser';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import { db } from '.././firebase'; // Importa la configuración de Firebase
+import { collection, getDocs, DocumentData } from 'firebase/firestore'; // Importa las funciones necesarias de Firebase Firestore
 
-export default function App() {
-    const [estadoFrom, setCerraFrom] = useState(false);
-    const [openForm, setOpenForm] = useState(false);
-    const [tableLoaded, setTableLoaded] = useState(false);
+interface InventarioItem {
+    id: string;
+    nombre: string;
+    codigo: string;
+    cantidad: number;
+    categoria: string;
+}
+interface jsPDFWithAutoTable extends jsPDF {
+    autoTable: (options: any) => jsPDF;
+}
+const App: React.FC = () => {
+    const [estadoFrom, setCerraFrom] = useState<boolean>(false);
+    const [openForm, setOpenForm] = useState<boolean>(false);
+    const [tableLoaded, setTableLoaded] = useState<boolean>(false);
+    const [inventario, setInventario] = useState<InventarioItem[]>([]);
 
     useEffect(() => {
-        setTableLoaded(true);
+        const fetchData = async () => {
+            const querySnapshot = await getDocs(collection(db, 'inventario'));
+            const data = querySnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })) as InventarioItem[];
+            setInventario(data);
+            setTableLoaded(true);
+        };
+
+        fetchData();
     }, []);
 
     const handleExportToPDF = () => {
@@ -22,9 +42,34 @@ export default function App() {
             return;
         }
 
-        const doc = new jsPDF();
-        doc.autoTable({ html: '#table-to-export ion-list' });
+        // Crear una tabla temporal para exportar
+        const tempTable = document.createElement('table');
+        tempTable.innerHTML = `
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre Del Producto</th>
+                    <th>Código del Producto</th>
+                    <th>Cantidad</th>
+                    <th>Categoría</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${inventario.map(item => `
+                    <tr>
+                        <td>${item.id}</td>
+                        <td>${item.nombre}</td>
+                        <td>${item.codigo}</td>
+                        <td>${item.cantidad}</td>
+                        <td>${item.categoria}</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        `;
 
+        const doc = new jsPDF() as jsPDFWithAutoTable;
+
+        doc.autoTable({ html: tempTable });
         doc.save('tabla.pdf');
     };
 
@@ -52,21 +97,23 @@ export default function App() {
                             <IonLabel className="w-full md:w-1/6 text-center font-medium">Categoría</IonLabel>
                             <IonLabel className="w-full md:w-1/6 text-center font-medium">Acciones</IonLabel>
                         </IonItem>
-                        <IonItem className="flex flex-wrap space-x-2">
-                            <IonLabel className="w-full md:w-1/6 text-center">1</IonLabel>
-                            <IonLabel className="w-full md:w-1/6 text-center">Samsung</IonLabel>
-                            <IonLabel className="w-full md:w-1/6 text-center">32442</IonLabel>
-                            <IonLabel className="w-full md:w-1/6 text-center">3</IonLabel>
-                            <IonLabel className="w-full md:w-1/6 text-center">Teléfono</IonLabel>
-                            <div className="w-full md:w-1/6 flex justify-center md:justify-end items-center space-x-2">
-                                <IonButton fill="clear" className="p-0 m-0 w-13 h-16" onClick={() => setOpenForm(!openForm)}>
-                                    <EditIcon />
-                                </IonButton>
-                                <IonButton fill="clear" className="p-0 m-0 w-15 h-12" onClick={() => alert('Delete action')}>
-                                    <DeleteIcon />
-                                </IonButton>
-                            </div>
-                        </IonItem>
+                        {inventario.map(item => (
+                            <IonItem key={item.id} className="flex flex-wrap space-x-2">
+                                <IonLabel className="w-full md:w-1/6 text-center">{item.id}</IonLabel>
+                                <IonLabel className="w-full md:w-1/6 text-center">{item.nombre}</IonLabel>
+                                <IonLabel className="w-full md:w-1/6 text-center">{item.codigo}</IonLabel>
+                                <IonLabel className="w-full md:w-1/6 text-center">{item.cantidad}</IonLabel>
+                                <IonLabel className="w-full md:w-1/6 text-center">{item.categoria}</IonLabel>
+                                <div className="w-full md:w-1/6 flex justify-center md:justify-end items-center space-x-2">
+                                    <IonButton fill="clear" className="p-0 m-0 w-13 h-16" onClick={() => setOpenForm(!openForm)}>
+                                        <EditIcon />
+                                    </IonButton>
+                                    <IonButton fill="clear" className="p-0 m-0 w-15 h-12" onClick={() => alert('Delete action')}>
+                                        <DeleteIcon />
+                                    </IonButton>
+                                </div>
+                            </IonItem>
+                        ))}
                     </IonList>
                 </div>
             </div>
@@ -86,3 +133,5 @@ export default function App() {
         </IonContent>
     );
 }
+
+export default App;

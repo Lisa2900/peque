@@ -12,14 +12,12 @@
     "lint": "eslint"
   },
   "dependencies": {
-    
     "@capacitor/android": "^6.0.0",
     "@capacitor/app": "6.0.0",
     "@capacitor/core": "6.0.0",
     "@capacitor/haptics": "6.0.0",
     "@capacitor/keyboard": "6.0.0",
     "@capacitor/status-bar": "6.0.0",
-    
     "@ionic-native/core": "^5.36.0",
     "@ionic/react": "^8.0.0",
     "@ionic/react-router": "^8.0.0",
@@ -27,11 +25,16 @@
     "@types/react-router-dom": "^5.3.3",
     "firebase": "^10.12.0",
     "ionicons": "^7.0.0",
-    
+    "jspdf": "^2.5.1",
+    "jspdf-autotable": "^3.8.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router": "^5.3.4",
-    "react-router-dom": "^5.0.1"
+    "react-router-dom": "^5.0.1",
+    "sweetalert": "^2.1.2",
+    "@nextui-org/react": "^2.3.6",
+    "react-icons": "^5.2.1",
+    "@mui/material": "^5.15.18"
   },
   "devDependencies": {
     "@capacitor/cli": "6.0.0",
