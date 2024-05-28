@@ -7,13 +7,12 @@ import { IonButton, IonContent, IonHeader, IonRouterLink } from '@ionic/react'
 function Inventario() {
   return (
     <>
-    <IonHeader>
-      <Search/>
+      <IonHeader>
+        <Search />
       </IonHeader>
       <IonContent>
-      <Camera />
-      <IonRouterLink href='/agregar'>Agregar Producto</IonRouterLink>
-      <Table/>
+        <Camera />
+        <Table />
       </IonContent>
     </>
   )

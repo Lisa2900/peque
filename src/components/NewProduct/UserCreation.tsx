@@ -1,5 +1,5 @@
 import React, { ReactNode, useState } from 'react';
-import { IonButton, IonContent, IonInput, IonItem, IonLabel, IonSelect, IonSelectOption } from '@ionic/react';
+import { IonButton, IonContent, IonInput, IonItem, IonLabel, IonSelect, IonSelectOption, IonModal } from '@ionic/react';
 import swal from 'sweetalert';
 import { db } from '../../firebase'; // Importa la configuración de Firebase
 import { collection, addDoc } from 'firebase/firestore'; // Importa las funciones necesarias de Firebase Firestore
@@ -34,6 +34,7 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ abrir, cerra }) => {
       });
       console.log("Document written with ID: ", docRef.id);
       mostrarAlerta(); // Muestra la alerta de éxito
+      cerra(false); // Cierra el modal después de agregar el producto
     } catch (error) {
       console.error("Error adding document: ", error);
       swal({
@@ -45,44 +46,41 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ abrir, cerra }) => {
   };
 
   return (
-    <>
-      {abrir &&
-        <div className="relative ml-[5px] mt-[-190px]">
-          <div className="fixed inset-0 bg-black opacity-50 z-10"></div>
-          <div className="bg-zinc-800 text-white p-6 max-w-sm mx-auto rounded-lg mt-[-60px] relative z-20">
-            <h2 className="text-lg font-semibold mb-4">Create New Product</h2>
-            <form>
-              <IonItem>
-                <IonLabel position="floating">Nombre del Producto *</IonLabel>
-                <IonInput value={nombre} onIonChange={(e) => setNombre(e.detail.value!)} required></IonInput>
-              </IonItem>
-              <IonItem>
-                <IonLabel position="floating">Codigo Producto *</IonLabel>
-                <IonInput value={codigo} onIonChange={(e) => setCodigo(e.detail.value!)} required></IonInput>
-              </IonItem>
-              <IonItem>
-                <IonLabel position="floating">Cantidad *</IonLabel>
-                <IonInput type="number" value={cantidad} onIonChange={(e) => setCantidad(e.detail.value!)} required></IonInput>
-              </IonItem>
-              <IonItem>
-                <IonLabel>State *</IonLabel>
-                <IonSelect value={categoria} onIonChange={(e) => setCategoria(e.detail.value)}>
-                  <IonSelectOption value="">Seleccione una categoría</IonSelectOption>
-                  <IonSelectOption value="celulares">Celulares</IonSelectOption>
-                  <IonSelectOption value="audifonos">Audífonos</IonSelectOption>
-                  <IonSelectOption value="fundas">Fundas</IonSelectOption>
-                  <IonSelectOption value="cargadores">Cargadores</IonSelectOption>
-                </IonSelect>
-              </IonItem>
-              <div className="flex justify-end space-x-4">
-                <IonButton onClick={() => cerra(false)} className="bg-zinc-600 hover:bg-zinc-700 text-white px-4 py-2 rounded">Cancel</IonButton>
-                <IonButton onClick={agregarProducto} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Add</IonButton>
-              </div>
-            </form>
-          </div>
+    <IonModal isOpen={abrir} onDidDismiss={() => cerra(false)}>
+      <IonContent>
+        <div className="bg-zinc-800 text-white p-6 max-w-sm mx-auto rounded-lg">
+          <h2 className="text-lg font-semibold mb-4">Create New Product</h2>
+          <form>
+            <IonItem>
+              <IonLabel position="floating">Nombre del Producto *</IonLabel>
+              <IonInput value={nombre} onIonChange={(e) => setNombre(e.detail.value!)} required></IonInput>
+            </IonItem>
+            <IonItem>
+              <IonLabel position="floating">Codigo Producto *</IonLabel>
+              <IonInput value={codigo} onIonChange={(e) => setCodigo(e.detail.value!)} required></IonInput>
+            </IonItem>
+            <IonItem>
+              <IonLabel position="floating">Cantidad *</IonLabel>
+              <IonInput type="number" value={cantidad} onIonChange={(e) => setCantidad(e.detail.value!)} required></IonInput>
+            </IonItem>
+            <IonItem>
+              <IonLabel>State *</IonLabel>
+              <IonSelect value={categoria} onIonChange={(e) => setCategoria(e.detail.value)}>
+                <IonSelectOption value="">Seleccione una categoría</IonSelectOption>
+                <IonSelectOption value="celulares">Celulares</IonSelectOption>
+                <IonSelectOption value="audifonos">Audífonos</IonSelectOption>
+                <IonSelectOption value="fundas">Fundas</IonSelectOption>
+                <IonSelectOption value="cargadores">Cargadores</IonSelectOption>
+              </IonSelect>
+            </IonItem>
+            <div className="flex justify-end space-x-4">
+              <IonButton onClick={() => cerra(false)} className="bg-zinc-600 hover:bg-zinc-700 text-white px-4 py-2 rounded">Cancel</IonButton>
+              <IonButton onClick={agregarProducto} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Add</IonButton>
+            </div>
+          </form>
         </div>
-      }
-    </>
+      </IonContent>
+    </IonModal>
   );
 };
 

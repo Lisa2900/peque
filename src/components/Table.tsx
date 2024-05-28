@@ -2,12 +2,12 @@ import React, { useState, useEffect } from "react";
 import { IonButton, IonContent, IonList, IonItem, IonLabel } from '@ionic/react';
 import UserCreation from '../components/NewProduct/UserCreation';
 import EditIcon from './Botones/EditIcon';
-import DeleteIcon from './Botones/DeleteIcon';
+import DeleteButton from './Botones/DeleteButton'; // Importa el nuevo componente
 import UpdateUser from '../components/NewProduct/UpdateUser';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import { db } from '.././firebase'; // Importa la configuración de Firebase
-import { collection, getDocs, DocumentData } from 'firebase/firestore'; // Importa las funciones necesarias de Firebase Firestore
+import { db } from '../firebase'; // Importa la configuración de Firebase
+import { collection, getDocs } from 'firebase/firestore'; // Importa las funciones necesarias de Firebase Firestore
 
 interface InventarioItem {
     id: string;
@@ -16,23 +16,31 @@ interface InventarioItem {
     cantidad: number;
     categoria: string;
 }
+
 interface jsPDFWithAutoTable extends jsPDF {
     autoTable: (options: any) => jsPDF;
+}
+
+interface CreateUserFormProps {
+    open: boolean;
+    close: () => void;
+    item?: InventarioItem; // Add the item property here
 }
 const App: React.FC = () => {
     const [estadoFrom, setCerraFrom] = useState<boolean>(false);
     const [openForm, setOpenForm] = useState<boolean>(false);
+    const [selectedItem, setSelectedItem] = useState<InventarioItem | null>(null);
     const [tableLoaded, setTableLoaded] = useState<boolean>(false);
     const [inventario, setInventario] = useState<InventarioItem[]>([]);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            const querySnapshot = await getDocs(collection(db, 'inventario'));
-            const data = querySnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })) as InventarioItem[];
-            setInventario(data);
-            setTableLoaded(true);
-        };
+    const fetchData = async () => {
+        const querySnapshot = await getDocs(collection(db, 'inventario'));
+        const data = querySnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })) as InventarioItem[];
+        setInventario(data);
+        setTableLoaded(true);
+    };
 
+    useEffect(() => {
         fetchData();
     }, []);
 
@@ -42,33 +50,31 @@ const App: React.FC = () => {
             return;
         }
 
-        // Crear una tabla temporal para exportar
         const tempTable = document.createElement('table');
         tempTable.innerHTML = `
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Nombre Del Producto</th>
-                    <th>Código del Producto</th>
-                    <th>Cantidad</th>
-                    <th>Categoría</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${inventario.map(item => `
-                    <tr>
-                        <td>${item.id}</td>
-                        <td>${item.nombre}</td>
-                        <td>${item.codigo}</td>
-                        <td>${item.cantidad}</td>
-                        <td>${item.categoria}</td>
-                    </tr>
-                `).join('')}
-            </tbody>
-        `;
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nombre Del Producto</th>
+          <th>Código del Producto</th>
+          <th>Cantidad</th>
+          <th>Categoría</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${inventario.map(item => `
+          <tr>
+            <td>${item.id}</td>
+            <td>${item.nombre}</td>
+            <td>${item.codigo}</td>
+            <td>${item.cantidad}</td>
+            <td>${item.categoria}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    `;
 
         const doc = new jsPDF() as jsPDFWithAutoTable;
-
         doc.autoTable({ html: tempTable });
         doc.save('tabla.pdf');
     };
@@ -105,12 +111,10 @@ const App: React.FC = () => {
                                 <IonLabel className="w-full md:w-1/6 text-center">{item.cantidad}</IonLabel>
                                 <IonLabel className="w-full md:w-1/6 text-center">{item.categoria}</IonLabel>
                                 <div className="w-full md:w-1/6 flex justify-center md:justify-end items-center space-x-2">
-                                    <IonButton fill="clear" className="p-0 m-0 w-13 h-16" onClick={() => setOpenForm(!openForm)}>
+                                    <IonButton fill="clear" className="p-0 m-0 w-13 h-16" onClick={() => { setSelectedItem(item); setOpenForm(true); }}>
                                         <EditIcon />
                                     </IonButton>
-                                    <IonButton fill="clear" className="p-0 m-0 w-15 h-12" onClick={() => alert('Delete action')}>
-                                        <DeleteIcon />
-                                    </IonButton>
+                                    <DeleteButton itemId={item.id} onDeleteSuccess={fetchData} />
                                 </div>
                             </IonItem>
                         ))}
@@ -124,10 +128,11 @@ const App: React.FC = () => {
                     cerra={() => setCerraFrom(false)}
                 />
             )}
-            {openForm && (
+            {openForm && selectedItem && (
                 <UpdateUser
                     open={openForm}
                     close={() => setOpenForm(false)}
+                    item={selectedItem} // Pasa el item seleccionado al formulario de actualización
                 />
             )}
         </IonContent>

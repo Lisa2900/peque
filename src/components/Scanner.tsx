@@ -90,19 +90,19 @@ const Scanner: React.FC = () => {
         <IonButton onClick={cancelScan}>Cancel</IonButton>
       )}
       <IonModal isOpen={isModalOpen} onDidDismiss={closeModal}>
-        <IonContent>
-          <IonHeader>
-            <IonToolbar>
-              <IonTitle>Scanned Data</IonTitle>
-              <IonButton onClick={closeModal}>Close</IonButton>
-            </IonToolbar>
-          </IonHeader>
+        <IonHeader>
+          <IonToolbar>
+            <IonTitle>Scanned Data</IonTitle>
+            <IonButton onClick={closeModal}>Close</IonButton>
+          </IonToolbar>
+        </IonHeader>
+        <IonContent className="ion-padding">
           <IonText>
             <p>{scannedData}</p>
           </IonText>
         </IonContent>
       </IonModal>
-      <div id="reader"></div>
+      <div id="reader" style={{ display: scannerActive ? 'block' : 'none' }}></div>
     </>
   );
 };
